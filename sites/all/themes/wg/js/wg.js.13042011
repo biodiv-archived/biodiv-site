@@ -1,0 +1,77 @@
+jQuery(document).ready(function(){
+    	var theInt = null;
+		var $crosslink, $navthumb;
+		var curclicked = 0;
+		
+		theInterval = function(cur){
+			clearInterval(theInt);
+			
+			if( typeof cur != 'undefined' )
+				curclicked = cur;
+			
+			$crosslink.removeClass("active-thumb");
+			$navthumb.eq(curclicked).parent().addClass("active-thumb");
+				$(".stripNav ul li a").eq(curclicked).trigger('click');
+			
+			theInt = setInterval(function(){
+				$crosslink.removeClass("active-thumb");
+				$navthumb.eq(curclicked).parent().addClass("active-thumb");
+				$(".stripNav ul li a").eq(curclicked).trigger('click');
+				curclicked++;
+				if( 6 == curclicked )
+					curclicked = 0;
+				
+			}, 6000);
+		};
+		
+		$(function(){
+			
+			$("#main-photo-slider").codaSlider();
+			
+			$navthumb = $(".nav-thumb");
+			$crosslink = $(".cross-link");
+			
+			$navthumb
+			.click(function() {
+				var $this = $(this);
+				theInterval($this.parent().attr('href').slice(1) - 1);
+				return false;
+			});
+			
+			theInterval();
+		});
+
+	//$("#main-photo-slider").codaSlider();
+
+        $("#secondary_content").load("/augmentedmaps/sites/default/files/static/wg.html");
+
+        $("#western_ghats_link").click(function(){
+            $("#secondary_content").load("/augmentedmaps/sites/default/files/static/wg.html");
+        });
+
+        $("#hotspots_link").click(function(){
+            $("#secondary_content").load("/augmentedmaps/sites/default/files/static/hotspots.html");
+        });
+
+        $("#project_link").click(function(){
+            $("#secondary_content").load("/augmentedmaps/sites/default/files/static/project.html");
+        });
+
+        $("#timeline_link").click(function(){
+            $("#secondary_content").load("/augmentedmaps/sites/default/files/static/timeline.html");
+        });
+
+        $("#data_link").click(function(){
+            $("#secondary_content").load("/augmentedmaps/sites/default/files/static/data_sharing.html");
+        });
+
+        $("#about_link").click(function(){
+            $("#secondary_content").load("/augmentedmaps/sites/default/files/static/aboutus.html");
+        });
+
+        $("#secondary_content_close").click(function(){
+            $("#secondary_content").html("");
+            $("#secondary_content_close").hide();
+        });
+
+});
