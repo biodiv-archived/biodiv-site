@@ -767,9 +767,9 @@ function getLinkTableEntries(feature_id, layer_tablename, link_tablename) {
 }
 
 function isAuthorisedUser() {
-    var url = 'http://' + getHost() + '/ml_orchestrator.php?action=getUserId';
+    var url = 'http://' + getHost() + '/biodiv/SUser/isLoggedIn';
 
-    var userid = 0;
+    var isLoggedIn = false;
 
     $.ajax({
         url: url,
@@ -779,19 +779,18 @@ function isAuthorisedUser() {
         timeout: 30000,
         dataType: 'text',
         error: function(){
-            return true;
+            isLoggedIn = false;
         },
         success: function(data, msg){
             if (parseFloat(msg)){
-                return false;
+                isLoggedIn = false;
             } else {
-                userid = parseInt(data);
-                return true;
+                isLoggedIn = (data === 'true');
             }
         }
     });
 
-    return userid > 0;
+    return isLoggedIn;
 }
 
 function AugmentedMap(map_div, options) {
