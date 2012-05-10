@@ -769,7 +769,7 @@ function getLinkTableEntries(feature_id, layer_tablename, link_tablename) {
 function isAuthorisedUser() {
     var url = 'http://' + getHost() + '/biodiv/SUser/isLoggedIn';
 
-    var isLoggedIn = false;
+    var isAuthorised = false;
 
     $.ajax({
         url: url,
@@ -779,18 +779,18 @@ function isAuthorisedUser() {
         timeout: 30000,
         dataType: 'text',
         error: function(){
-            isLoggedIn = false;
+            isAuthorised = false;
         },
         success: function(data, msg){
             if (parseFloat(msg)){
-                isLoggedIn = false;
+                isAuthorised = false;
             } else {
-                isLoggedIn = (data === 'true');
+                isAuthorised = (data === 'true');
             }
         }
     });
 
-    return isLoggedIn;
+    return isAuthorised;
 }
 
 function AugmentedMap(map_div, options) {
