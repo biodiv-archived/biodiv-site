@@ -517,7 +517,7 @@ function getLayerInfo_WMS_3(layerElement) {
             title = childNodes[i].childNodes[0].nodeValue;
         }else if (childNodes[i].nodeName === "Abstract") {
             var abstrct_node = childNodes[i].childNodes[0];
-            abstrct = (abstrct_node !== undefined)?abstrct_node.nodeValue:'';
+            abstrct = (abstrct_node !== undefined && abstrct_node !== null)?abstrct_node.nodeValue:'';
         }
         else if (childNodes[i].nodeName === "BoundingBox"){
             bbox = getLatLonBBoxString(childNodes[i]);
@@ -1382,7 +1382,7 @@ function getLayerKeywords(keywordsElement) {
     var childNodes = keywordsElement.childNodes;
 
     for (var i=0; i<childNodes.length; i++) {
-        if (childNodes[i].childNodes[0] !== undefined)
+        if (childNodes[i].childNodes[0] !== undefined && childNodes[i].childNodes[0] !== null)
             keywords.push(childNodes[i].childNodes[0].nodeValue);
     }
 
