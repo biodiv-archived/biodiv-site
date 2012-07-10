@@ -5,6 +5,7 @@
  <html xmlns:fb="http://www.facebook.com/2008/fbml"
                     xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php print $language->language ?>"
                     lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>">
+	
 	<head>
 		<title>Western Ghats Portal</title>
     		<meta name="robots" content="noarchive"> <!-- No caching of page in Google. http://www.google.com/support/webmasters/bin/answer.py?answer=35306&topic=13511 -->
@@ -18,7 +19,16 @@
     		<script type="text/javascript" src="/sites/all/themes/wg/scripts/jquery-1.6.1.min.js"></script>
     		<script type="text/javascript" src="/sites/all/themes/wg/scripts/jquery-ui-1.8.13.custom.min.js"></script>
 		<script type="text/javascript" src="/sites/all/themes/wg/js/wg.js"></script>
+		
+    		<script type="text/javascript" src="/sites/all/themes/wg/js/jquery.jcarousel-0.2.8/jquery.jcarousel.js"></script>
+		<link type="text/css" rel="stylesheet" media="all" href="/sites/all/themes/wg/js/jquery.jcarousel-0.2.8/themes/classic/skin.css"/>
 		<?php print $closure ?>
+		<style>
+		#mycarousel .jcarousel-item 
+		{
+			padding-right: 15px;
+		}
+		</style>
 	</head>
 
 	<body id="home">
@@ -33,19 +43,6 @@
 					<?php endif; ?>
 				</div>
 				<div id="homeUserMenu">
-					<ul>
-					<?php global $user; ?>
-					<?php if($user->uid): ?>
-					<li>Welcome <?php echo l($user->name, "user");?></li>
-						<?php if($is_admin): ?>
-						<li><a href="<?php print check_url($front_page);?>admin">Administration</a></li>
-						<?php endif; ?>
-					<li class="last"><a href="<?php print check_url($front_page);?>logout">Logout</a></li>
-					<?php else: ?>
-					<li><a onclick="show_login_dialog();return false;" href="<?php print check_url($front_page);?>user/login">Login</a></li>
-					<li class="last"><a href="<?php print check_url($front_page);?>user/register">Register</a></li>
-					<?php endif; ?>
-					</ul>
 				</div>
 			</div>
 			<!-- Main menu ends -->
@@ -68,13 +65,14 @@
                         <div id="main-content">
                         <div id="navbars">
                         <div class="navbar">
+                                        <div id="species_entry" onclick="location.href='<?php print check_url($front_page)?>biodiv/species/list'";></div>
                                         <div id="explore" onclick="location.href='<?php print check_url($front_page)?>map'";></div>
                                         <div id="checklists" onclick="location.href='<?php print check_url($front_page)?>browsechecklists'"></div>
-                                        <div id="collaborate" onclick="location.href='<?php print check_url($front_page)?>collaborate-wg'"><div id="collaborate-links"></div></div>
+                                        <!--div id="collaborate" onclick="location.href='<?php print check_url($front_page)?>collaborate-wg'"><div id="collaborate-links"></div></div-->
                         </div><!-- navbar -->
 
                         <div class="navbar">
-                                        <div id="species_entry" onclick="location.href='<?php print check_url($front_page)?>biodiv/species/list'";></div>
+                                        <div id="observations" onclick="location.href='<?php print check_url($front_page)?>biodiv/observation/list'"></div>
                                         <div id="themes_entry" onclick="location.href='<?php print check_url($front_page)?>themepages/list'";></div>
                                         <div id="aboutus_entry" onclick="location.href='<?php print check_url($front_page)?>about/western-ghats'"><div id="collaborate-links"></div></div>
                         </div><!-- navbar -->
@@ -84,15 +82,34 @@
 
                         </div><!-- main-content -->
 
-			<div style="clear:both;">
+			<div style="clear:both; margin-left: auto; margin-right: auto; position: relative; width: 640px; left: -152px;">
                         <ul id="whatsnew">
                         <li id="new-whatsnew">New</li>
                         <li> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <a href="http://www.surveymonkey.com/s/wgp_motivation">Take a survey on motivation for collaboration</a>
+                        <!--a href="http://www.surveymonkey.com/s/wgp_motivation">Take a survey on motivation for collaboration</a-->
+			Soft launch of observation interface
                         </li>
                         </ul>
 			</div>
+			
+			<div>
+			<h3  style="clear:both;padding-left: 10px; margin-left: auto; margin-right: auto; position: relative; width: 640px; left: -150px;" >Other biodiversity sites</h3>	
+				<ul id="mycarousel" class="jcarousel-skin-ie7">
+    					<li>
+						<a href="http://threatenedtaxa.org/"><img title="Journal of Threatened Taxa" src="/sites/default/files/images/partner_logos/JoTTlogohigh75.png" height="75" alt="" /></a>
+					</li>
+					<li>
+						<a href="http://www.ibin.co.in"><img title="Indian Bioresource Information Network" src="/sites/default/files/images/partner_logos/ibin75.png" height="75" alt="" /></a>
+					</li>
+                                        <li>
+                                                <a href="http://www.biodiversityofindia.org"><img title="Biodiversity of India" src="/sites/default/files/images/partner_logos/projectbrahmalogo75.png" height="75" alt="" /></a>
+                                        </li>
+                                        <li>
+                                                <a href="http://avis.indianbiodiversity.org/"><img title="AVIS-IBIS" src="/sites/default/files/images/partner_logos/avis-ibis-bg75.png" height="75" alt="" /></a>
+                                        </li>
 
+  				</ul>
+			</div>
 
 
       		       <div style="clear:both;"></div>
@@ -165,10 +182,18 @@
       }
 
       jQuery(document).ready(function(){
+	$("#homeUserMenu").load("/biodiv/SUser/login");
+	jQuery('#mycarousel').jcarousel({
+		itemFallbackDimension:75 
+	});
+
         //setMainDivSize();
         //chkBrowserCompatibility();
         //chkFlashVersion();
       });
     </script>
+
+
+
 	</body>
 </html>
