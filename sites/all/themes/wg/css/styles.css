@@ -231,6 +231,25 @@ text-decoration:underline;
     box-shadow:-1px -1px 21px #efefef;
 }
 
+#home #observations {
+        float:left;
+	width: 200px;
+	height: 200px;
+	margin: 10px;
+	background-image: url(images/observations.png);
+        background-position:0 0;
+        cursor: pointer;
+	border-radius:7px;
+        box-shadow:-3px -1px 21px #777777;
+}
+
+#home #observations:hover {
+    background-position:-200px 0;
+    box-shadow:-1px -1px 21px #efefef;
+}
+
+
+
 #home #collaborate {
         float:left;
 	width: 200px;
@@ -2487,7 +2506,6 @@ padding-top:10px;
 background-color:#fafafa;
 border:1px solid #e5e5e5;
 list-style:none;
-width:930px;
 border-radius:5px;
 margin-left:auto;
 margin-right:auto;
