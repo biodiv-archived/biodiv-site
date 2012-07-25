@@ -942,6 +942,11 @@ function AugmentedMap(map_div, options) {
 	
 	var d = source.split(":");
 	
+        if (d.length === 2 && d[0] === "observation"){
+		var url = "http://" + getHost() + "/biodiv/observation/show/" + d[1];
+		return "<a href='" + url + "'>Observation</a>";			
+        }
+
 	if (d.length === 3 && d[0] === "checklist"){
 		var url = "http://" + getHost() + "/node/" + d[2];
 		return "<a href='" + url + "'>" + d[1] + "</a>";			
