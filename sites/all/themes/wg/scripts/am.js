@@ -767,9 +767,10 @@ function getLinkTableEntries(feature_id, layer_tablename, link_tablename) {
 }
 
 function isAuthorisedUser() {
-    var url = 'http://' + getHost() + '/biodiv/SUser/isLoggedIn';
 
-    var isAuthorised = false;
+   var url = 'http://' + getHost() + '/biodiv/SUser/isLoggedIn';
+    
+    var isLoggedIn = false;
 
     $.ajax({
         url: url,
@@ -779,18 +780,18 @@ function isAuthorisedUser() {
         timeout: 30000,
         dataType: 'text',
         error: function(){
-            isAuthorised = false;
+            isLoggedIn = false;
         },
         success: function(data, msg){
             if (parseFloat(msg)){
-                isAuthorised = false;
+                isLoggedIn = false;
             } else {
-                isAuthorised = (data === 'true');
+                isLoggedIn = (data === 'true');
             }
         }
     });
 
-    return isAuthorised;
+    return isLoggedIn;
 }
 
 function arrayContains(arr, val) {
@@ -1226,6 +1227,7 @@ function AugmentedMap(map_div, options) {
     }
 
     function activateNavigationControl() {
+	$('.map_status').hide();
         // Deactivate all controls in toolbar.
         var len = toolbar.controls.length;
         for(var i = 1; i < len; i++) {
@@ -1325,6 +1327,18 @@ function AugmentedMap(map_div, options) {
         title:'Click on a feature to show information or click and drag to pan'
       });
 
+      var mt_path = new OpenLayers.Control.Measure(OpenLayers.Handler.Path, {title:"Distance measure tool", displayClass: "pathMeasureTool olControlMeasure", persist: true});
+      mt_path.events.on({
+                    "measure": handleMeasurements,
+                    "measurepartial": handleMeasurements
+                });
+
+      var mt_polygon = new OpenLayers.Control.Measure(OpenLayers.Handler.Polygon, {title: "Area measure tool", displayClass: "areaMeasureTool olControlMeasure", persist: true});
+      mt_polygon.events.on({
+                    "measure": handleMeasurements,
+                    "measurepartial": handleMeasurements
+                });
+
       // create toolbar panel object
       toolbar = new OpenLayers.Control.Panel({
         defaultControl: md
@@ -1333,7 +1347,9 @@ function AugmentedMap(map_div, options) {
       // add mouseDefaults and zoomBox controls to the toolbar panel
       toolbar.addControls([
         md,
-        zb
+        zb,
+	mt_path,
+	mt_polygon
       ]);
         
       // add the toolbar panel to map.
@@ -1365,6 +1381,72 @@ function AugmentedMap(map_div, options) {
 
     map.events.register('click', map, layerClicked);
     map.events.register('moveend', map, onZoom);
+
+    function handleMeasurements(event) {
+            $('.map_status').show();
+            var geometry = event.geometry;
+            var units = event.units;
+            var order = event.order;
+            var measure = event.measure;
+            if (units == "m") {
+            	if (order == 1) {
+            		measure = parseFloat(measure)/1000;
+            		units = "km";
+            	}else{
+            		measure = parseFloat(measure)/1000000;
+            		units = "km";
+            	}
+
+            }
+
+            var status_div = map_div + '_status';
+
+            var element = document.getElementById(status_div);
+            var out = "<table width='100%' class='measurement' >";
+            var val;
+            out += "<thead ><tr><th><b>Unit</b></th><th><b>Measure</b></th></tr></thead>";
+            out += "<tbody >";
+            if(order == 1) {
+            	// indicates distance and unit km
+
+            		out += "<tr>";
+            			out += "<td>" + units + "</td>";
+            			out += "<td>" + measure.toFixed(3) + "</td>" ;
+	           		out += "</tr>";
+	           		out += "<tr>";
+            			out += "<td>miles</td>";
+            			val = parseFloat(measure) * 0.6213712;
+            			out += "<td>" + val.toFixed(3) + "</td>" ;
+	           		out += "</tr>";
+
+            } else {
+            	// indicates area and unit sq.km
+            		out += "<tr>";
+            			out += "<td>" + units + "<sup>2</sup></td>";
+            			out += "<td>" + measure.toFixed(3) + "</td>" ;
+	           		out += "</tr>";
+	           		out += "<tr>";
+            			out += "<td>miles<sup>2</sup></td>";
+            			val = parseFloat(measure) * 0.3861021;
+            			out += "<td>" + val.toFixed(3) + "</td>" ;
+	           		out += "</tr>";
+	           		out += "<tr>";
+            			out += "<td>Acres</td>";
+            			val = parseFloat(measure) * 247.1053814;
+            			out += "<td>" + val.toFixed(3) + "</td>" ;
+	           		out += "</tr>";
+	           		out += "<tr>";
+            			out += "<td>Hectares</td>";
+            			val = parseFloat(measure) * 100;
+            			out += "<td>" + val.toFixed(3) + "</td>" ;
+	           		out += "</tr>";
+
+            }
+            out += "</tbody>";
+			out += "</table>";
+            element.innerHTML = out;
+        }
+
 
 
 }
@@ -1685,7 +1767,8 @@ function updateLayersList(tag) {
 
         //var new_layers = ['wgp:lyr_210_india_checklists','wgp:lyr_212_wg_fire_2002','wgp:lyr_213_wg_fire_2003','wgp:lyr_214_wg_fire_2010','wgp:lyr_215_wg_fire_2007','wgp:lyr_216_wg_fire_2004','wgp:lyr_217_wg_fire_2008','wgp:lyr_218_wg_fire_2005','wgp:lyr_219_wg_fire_2006','wgp:lyr_220_wg_fire_2001','wgp:lyr_221_wg_fire_2000','wgp:lyr_222_wg_fire_2009'];
         //var new_layers = ['lyr_293_kerala_rf_data','lyr_294_distribution','lyr_295_location','lyr_235_wg_birdtransects','lyr_237_reconnaissance_soil','lyr_238_western_anamalai','lyr_239_belgaum_dharwar_panaji_floristictypes','lyr_240_belgaum_dharwar_panaji_physiognomy','lyr_241_belgaum_dharwar_panaji_majorforest','lyr_242_kmtr','lyr_243_mercara_mysore_physiognomy','lyr_244_mercara_mysore_floristictypes','lyr_245_mercara_mysore_majorforest','lyr_246_thiruvananthapuram_tirunelveli_floristictypes','lyr_247_thiruvananthapuram_tirunelveli_physiognomy','lyr_248_thiruvananthapuram_tirunelveli_majorforest','lyr_249_wg_simple_14class_vegetation','lyr_250_coimbatore_thrissur_majorforest','lyr_291_coimbatore_thrissur_physiognomy','lyr_252_coimbatore_thrissur_floristictypes','lyr_253_shimoga_majorforest','lyr_254_shimoga_floristictypes','lyr_255_shimoga_physiognomy','lyr_256_soilcorban77','lyr_257_soilcorban99','lyr_258_gudalur_mudumalai','lyr_259_wg_subbasin','lyr_260_wg_watershed','lyr_261_wg_river','lyr_262_wg_dam','lyr_263_wg_basin'];
-        var new_layers = ['lyr_299_wg_bats', 'lyr_293_kerala_rf_data','lyr_294_distribution','lyr_301_wg_bird_tree_transcet'];
+        //var new_layers = ['lyr_299_wg_bats', 'lyr_293_kerala_rf_data','lyr_294_distribution','lyr_301_wg_bird_tree_transcet'];
+        var new_layers = ['lyr_303_primates', 'lyr_304_smallmammals', 'lyr_305_forestdivisions', 'lyr_306_rf_boundaries', 'lyr_308_soi_toposheet_50k_index', 'lyr_309_largecarnivores', 'lyr_317_hornbill_nesting_wg'];
         var k;
         for (k = 0; k < new_layers.length; k += 1) {
            var layer = getWorkspace() + ':' + new_layers[k];
@@ -2224,6 +2307,14 @@ function createBaseLayerSwitcher() {
     return html;
 }
 
+function createMapStatusBox(map_div) {
+
+    var html = '<div id="' + map_div + '_status" class="map_status" style="display:none; position:absolute;right:20px;bottom:100px;z-index:2000;">';
+    html = html + '</div>';
+    
+    return html;
+}
+
 function loadLayersFromCookie(){
     var layers_cookie = eatCookie("layers");
     if (layers_cookie !== null && layers_cookie !== ''){
@@ -2241,9 +2332,10 @@ function showMap(map_div, mapOptions, layersOptions) {
 
     if (fullOptions.baselayers_switcher_enabled) {
     	var base_layers_switcher = createBaseLayerSwitcher();
+	var map_status_box = createMapStatusBox(map_div);
     	$('#' + map_div).before(base_layers_switcher);
+	$('#' + map_div).before(map_status_box);
     }
-
 
     var map = new AugmentedMap(map_div, fullOptions);
     var layers = getLayers(map, layersOptions);

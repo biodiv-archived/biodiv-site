@@ -406,6 +406,31 @@ z-index:1009;
     background-repeat: no-repeat;
 }
 
+.olControlPanel .pathMeasureTool.olControlMeasureItemActive{
+    background-image: url("../images/map_tools.png");
+    background-repeat: no-repeat;
+    background-position: 0px -22px;
+}
+
+.olControlPanel .pathMeasureTool.olControlMeasureItemInactive{
+    background-image: url("../images/map_tools.png");
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+}
+
+.olControlPanel .areaMeasureTool.olControlMeasureItemActive{
+    background-image: url("../images/map_tools.png");
+    background-repeat: no-repeat;
+    background-position: 0px -66px;
+}
+
+.olControlPanel .areaMeasureTool.olControlMeasureItemInactive{
+    background-image: url("../images/map_tools.png");
+    background-repeat: no-repeat;
+    background-position: 0px -44px;
+}
+
+
 .olControlPanel {
     left: 67px;
     top: 21px;
@@ -699,7 +724,7 @@ background-position: -24 0;
     display: block;
     list-style: none outside none;
     position: absolute;
-    right: 70px;
+    right: 220px;
     top: 40px;
     z-index: 2000;
 }
@@ -851,4 +876,9 @@ font-size:0.8em;
 
 .search_highlights em{
 font-weight: bold;    
+}
+
+.map_status {
+background-color: #ffffff;
+padding: 10px;
 }
