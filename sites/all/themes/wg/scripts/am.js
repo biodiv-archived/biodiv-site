@@ -5,7 +5,11 @@ function getHost() {
 }
 
 function getWorkspace() {
-    return 'wgp';
+    if (getHost() === 'thewesternghats.indiabiodiversity.org' || getHost() === 'wgp.saturn.strandls.com') { 
+    	return 'wgp';
+    }
+	
+    return 'ibp';
 }
 
 function getWWWBase() {
@@ -148,9 +152,14 @@ function getThemeNames(theme_type) {
 
     //currently  no way to filter the theme names by domains ibp/wgp, 
     //hence, commented above code and using  hardcoded theme names below
-    var by_themes = 'Biogeography///Abiotic///Demography///Species///Administrative Units///Land Use Land Cover///Conservation';
+    var by_themes = 'Biogeography///Abiotic///Demography///Species///Administrative Units///Land Use Land Cover///Conservation///Threats';
 
-    var by_geography = 'India///Nilgiri Biosphere Reserve///Western Ghats///BR Hills, Karnataka///Vembanad, Kerala///Bandipur, Karnataka';
+    var by_geography = 'India///Uttaranchal///Nilgiri Biosphere Reserve///Papagni, Andhra Pradesh///Western Ghats///BR Hills, Karnataka///Vembanad, Kerala///Satkoshia, Orissa///North East Area///Agar, Madhya Pradesh///Mandla, Madhya Pradesh///Pench, Madhya Pradesh///Bandipur, Karnataka///Kanakapura';
+
+
+     if (getWorkspace() === 'wgp' ){
+    	by_geography = 'India///Nilgiri Biosphere Reserve///Western Ghats///BR Hills, Karnataka///Vembanad, Kerala///Bandipur, Karnataka';
+     }
 
     if (theme_type == 1)
 	return by_themes.split('///');
@@ -768,30 +777,30 @@ function getLinkTableEntries(feature_id, layer_tablename, link_tablename) {
 
 function isAuthorisedUser() {
 
-   var url = 'http://' + getHost() + '/biodiv/SUser/isLoggedIn';
-    
-    var isLoggedIn = false;
+   var url = 'http://' + getHost() + '/biodiv/SUser/isLoggedIn';
+    
+    var isLoggedIn = false;
 
-    $.ajax({
-        url: url,
-        type: 'GET',
-        async: false,
-        cache: false,
-        timeout: 30000,
-        dataType: 'text',
-        error: function(){
-            isLoggedIn = false;
-        },
-        success: function(data, msg){
-            if (parseFloat(msg)){
-                isLoggedIn = false;
-            } else {
-                isLoggedIn = (data === 'true');
-            }
-        }
-    });
+    $.ajax({
+        url: url,
+        type: 'GET',
+        async: false,
+        cache: false,
+        timeout: 30000,
+        dataType: 'text',
+        error: function(){
+            isLoggedIn = false;
+        },
+        success: function(data, msg){
+            if (parseFloat(msg)){
+                isLoggedIn = false;
+            } else {
+                isLoggedIn = (data === 'true');
+            }
+        }
+    });
 
-    return isLoggedIn;
+    return isLoggedIn;
 }
 
 function arrayContains(arr, val) {
@@ -820,7 +829,8 @@ function AugmentedMap(map_div, options) {
     var baselayer;
 
     this.map_div = map_div;
-    
+    google.maps.visualRefresh = true;
+ 
     // add only one google base layer at a time; if there are multiple google layers added
     // to openlayers map at any given instance some random repaint issues are encountered
     function addBaseLayers() {
@@ -952,12 +962,19 @@ function AugmentedMap(map_div, options) {
 		return '';
 	
 	var d = source.split(":");
-	
-	if (d.length === 2 && d[0] === "observation"){
-		var url = "http://" + getHost() + "/biodiv/observation/show/" + d[1];
-		return "<a href='" + url + "'>Observation</a>";			
+
+	if (d.length === 2) {
+                if(d[0] === "observation"){
+                        var url = "http://" + getHost() + "/biodiv/observation/show/" + d[1];
+                        return "<a href='" + url + "'>Observation</a>";
+                }
+                if(d[0] === "checklist"){
+                        var url = "http://" + getHost() + "/biodiv/checklist/show/" + d[1];
+                        return "<a href='" + url + "'>Checklist</a>";
+                }
+
         }
-		
+
 	if (d.length === 3 && d[0] === "checklist"){
 		var url = "http://" + getHost() + "/node/" + d[2];
 		return "<a href='" + url + "'>" + d[1] + "</a>";			
@@ -1048,7 +1065,8 @@ function AugmentedMap(map_div, options) {
             
             var titleColumn = summaryColumns[0];
             var titleValue = featuresList[i][titleColumn];
-            var feature_id = getLayerTitle(getWorkspace() + ":" + featuresList[i].layer) + " : " + titleValue; 
+            //var feature_id = getLayerTitle(getWorkspace() + ":" + featuresList[i].layer) + " : " + titleValue; 
+            var feature_id = getLayerTitle(featuresList[i].layer) + " : " + titleValue; 
             var title_div = titleValue.replace(/ /g, "_").replace(/./g, "_");
             html = html + '<div class="layer_info_box">';
             html = html + '<span class="feature_title">' + feature_id + '</span>';
@@ -1349,7 +1367,7 @@ function AugmentedMap(map_div, options) {
         md,
         zb,
 	mt_path,
-	mt_polygon
+        mt_polygon
       ]);
         
       // add the toolbar panel to map.
@@ -1446,9 +1464,6 @@ function AugmentedMap(map_div, options) {
 			out += "</table>";
             element.innerHTML = out;
         }
-
-
-
 }
 AugmentedMap.prototype = new OpenLayers.Map();
 
@@ -1736,7 +1751,8 @@ function updateLayersListByTheme(theme) {
     
     var i;
     for (i = 0; i < layers_by_theme.length; i += 1) {
-       var layer = getWorkspace() + ":" + layers_by_theme[i];
+       //var layer = getWorkspace() + ":" + layers_by_theme[i];
+       var layer = layers_by_theme[i];
        var lyr_element = document.getElementById(layer);
 
        if (lyr_element !== undefined && lyr_element !== null)
@@ -1768,10 +1784,33 @@ function updateLayersList(tag) {
         //var new_layers = ['wgp:lyr_210_india_checklists','wgp:lyr_212_wg_fire_2002','wgp:lyr_213_wg_fire_2003','wgp:lyr_214_wg_fire_2010','wgp:lyr_215_wg_fire_2007','wgp:lyr_216_wg_fire_2004','wgp:lyr_217_wg_fire_2008','wgp:lyr_218_wg_fire_2005','wgp:lyr_219_wg_fire_2006','wgp:lyr_220_wg_fire_2001','wgp:lyr_221_wg_fire_2000','wgp:lyr_222_wg_fire_2009'];
         //var new_layers = ['lyr_293_kerala_rf_data','lyr_294_distribution','lyr_295_location','lyr_235_wg_birdtransects','lyr_237_reconnaissance_soil','lyr_238_western_anamalai','lyr_239_belgaum_dharwar_panaji_floristictypes','lyr_240_belgaum_dharwar_panaji_physiognomy','lyr_241_belgaum_dharwar_panaji_majorforest','lyr_242_kmtr','lyr_243_mercara_mysore_physiognomy','lyr_244_mercara_mysore_floristictypes','lyr_245_mercara_mysore_majorforest','lyr_246_thiruvananthapuram_tirunelveli_floristictypes','lyr_247_thiruvananthapuram_tirunelveli_physiognomy','lyr_248_thiruvananthapuram_tirunelveli_majorforest','lyr_249_wg_simple_14class_vegetation','lyr_250_coimbatore_thrissur_majorforest','lyr_291_coimbatore_thrissur_physiognomy','lyr_252_coimbatore_thrissur_floristictypes','lyr_253_shimoga_majorforest','lyr_254_shimoga_floristictypes','lyr_255_shimoga_physiognomy','lyr_256_soilcorban77','lyr_257_soilcorban99','lyr_258_gudalur_mudumalai','lyr_259_wg_subbasin','lyr_260_wg_watershed','lyr_261_wg_river','lyr_262_wg_dam','lyr_263_wg_basin'];
         //var new_layers = ['lyr_299_wg_bats', 'lyr_293_kerala_rf_data','lyr_294_distribution','lyr_301_wg_bird_tree_transcet'];
-        var new_layers = ['lyr_303_primates', 'lyr_304_smallmammals', 'lyr_305_forestdivisions', 'lyr_306_rf_boundaries', 'lyr_308_soi_toposheet_50k_index', 'lyr_309_largecarnivores', 'lyr_317_hornbill_nesting_wg'];
+	//var new_layers = ['lyr_338_cape_comorin','lyr_340_transect','lyr_342_jan_feb_rainfall','lyr_344_march_may_rainfall','lyr_346_jun_sep_rainfall','lyr_348_oct_dec_rain','lyr_350_hydro_electric_projects','lyr_352_palani_hills','lyr_354_westernghats_dams','lyr_356_mines_ingoa','lyr_358_rain_annual', 'lyr_364_mammal_distribution'];
+	//var new_layers = ['lyr_369_wti_elephant_corridor','lyr_368_nilgiri_wetland','lyr_372_prachi_mehta_elephant','lyr_367_india_georegions_sing','lyr_370_aquatic_plants','lyr_371_plant_locations_aparna_watve','lyr_366_fish', 'lyr_381_tourism_information'];
+	//var new_layers = ['lyr_383_amphibian_collections_wgrc','lyr_385_amphibians','lyr_387_brt_animal_sightings','lyr_391_odonates','lyr_389_brt_animal_sightings_part'];
+	var new_layers = ['lyr_383_amphibian_collections_wgrc','lyr_385_amphibians','lyr_387_brt_animal_sightings','lyr_391_odonates','lyr_389_brt_animal_sightings_part','lyr_393_soi_topo_india_250k','lyr_395_soi_topo_india_50k','lyr_397_uttarkannada_ltm','lyr_399_uttarkannada_pa', 'lyr_401_fishbasegbifindiadistribution'];
+
+	/*
+        if (getWorkspace() === 'wgp' ){
+		new_layers = ['lyr_338_cape_comorin','lyr_340_transect','lyr_350_hydro_electric_projects','lyr_352_palani_hills','lyr_354_westernghats_dams','lyr_356_mines_ingoa', 'lyr_364_mammal_distribution'];
+
+	}*/
+
+        if (getWorkspace() === 'wgp' ){
+		new_layers = ['lyr_397_uttarkannada_ltm','lyr_399_uttarkannada_pa','lyr_383_amphibian_collections_wgrc','lyr_385_amphibians','lyr_387_brt_animal_sightings','lyr_391_odonates','lyr_389_brt_animal_sightings_part'];
+
+	}
+	if (document.URL.indexOf('treesindia.indiabiodiversity.org') !== -1){
+                new_layers = ['lyr_115_india_tahsils', 'lyr_112_india_geomorphology', 'lyr_117_india_soils', 'lyr_118_india_foresttypes', 'lyr_119_india_rainfallzone', 'lyr_156_india_biogeographic', 'lyr_159_india_physiography', 'lyr_161_india_riverbasins', 'lyr_162_india_temperature', 'lyr_167_brt_vegplots', 'lyr_171_india_landmarktrees', 'lyr_177_kanakapura_schools', 'lyr_2_wg_endemicsspsatlas', 'lyr_322_chandoli_pa_location', 'lyr_324_ranwa_tree_location', 'lyr_332_bangalore_roads', 'lyr_33_nbr_vegsample', 'lyr_342_jan_feb_rainfall', 'lyr_344_march_may_rainfall', 'lyr_346_jun_sep_rainfall', 'lyr_348_oct_dec_rain', 'lyr_358_rain_annual', 'lyr_367_india_georegions_sing', 'lyr_393_soi_topo_india_250k', 'lyr_395_soi_topo_india_50k'];
+        }
+
+	if (document.URL.indexOf('/group/bangalore_birdrace_2013/') !== -1){
+		new_layers = ['lyr_362_birdingplacesbangalore_polygons', 'lyr_360_birdingplacesbangalore_points', 'lyr_332_bangalore_roads', 'lyr_235_wg_birdtransects', 'lyr_301_wg_bird_tree_transcet', 'lyr_317_hornbill_nesting_wg', 'lyr_48_vembanad_birdsurvey', 'lyr_78_india_birdlocations'];
+        }
+
         var k;
         for (k = 0; k < new_layers.length; k += 1) {
-           var layer = getWorkspace() + ':' + new_layers[k];
+           //var layer = getWorkspace() + ':' + new_layers[k];
+           var layer =  new_layers[k];
            document.getElementById(layer).style.display = 'block';
         }
     }
@@ -2250,7 +2289,8 @@ function removeLayer(layer) {
     removeFromLayersCookie(layer);
 }
 
-function resetMap() {
+//function resetMap() {
+function resetAugmentedMap() {
     var map = window.map;
 
     var layers = map.getQueryableLayers();
@@ -2293,7 +2333,7 @@ function setBaseLayer(layer) {
 function createBaseLayerSwitcher() {
     var base_layers = ['Google Physical', 'Google Satellite', 'Google Hybrid', 'OpenStreetMap'];
 
-    var html = '<div style="position:absolute;right:20px;top:100px;z-index:2000;">';
+    var html = '<div style="position:absolute;right:80px;top:10px;z-index:900;">';
     html = html + '<select id="ddlBaseLayer" onchange="setBaseLayer(options[selectedIndex].value)">';
    
     var i; 
@@ -2315,6 +2355,11 @@ function createMapStatusBox(map_div) {
     return html;
 }
 
+function createResetBox() {
+    var html = '<div id="controls-bar"><ul><li title="Remove all added layers" class="controls_label" onclick="resetAugmentedMap();">Reset</li></ul></div>';
+    return html;
+}
+
 function loadLayersFromCookie(){
     var layers_cookie = eatCookie("layers");
     if (layers_cookie !== null && layers_cookie !== ''){
@@ -2333,8 +2378,10 @@ function showMap(map_div, mapOptions, layersOptions) {
     if (fullOptions.baselayers_switcher_enabled) {
     	var base_layers_switcher = createBaseLayerSwitcher();
 	var map_status_box = createMapStatusBox(map_div);
+    	var reset_box = createResetBox();
     	$('#' + map_div).before(base_layers_switcher);
 	$('#' + map_div).before(map_status_box);
+	$('#' + map_div).before(reset_box);
     }
 
     var map = new AugmentedMap(map_div, fullOptions);
